@@ -32,6 +32,7 @@ public class SimpleIME extends InputMethodService implements KeyboardView.OnKeyb
 
     @Override
     public void onKey(int i, int[] ints) {
+
         InputConnection ic = getCurrentInputConnection();
         playClick(i);
         switch(i){
