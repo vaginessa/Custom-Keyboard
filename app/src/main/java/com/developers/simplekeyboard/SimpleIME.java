@@ -7,13 +7,21 @@ import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.media.AudioManager;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
 
+import app.akexorcist.bluetotohspp.library.BluetoothSPP;
+
 public class SimpleIME extends InputMethodService implements KeyboardView.OnKeyboardActionListener{
     private KeyboardView kv;
     private Keyboard keyboard;
+    BluetoothSPP bt;
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
 
     private boolean caps = false;
     public SimpleIME() {
@@ -32,34 +40,41 @@ public class SimpleIME extends InputMethodService implements KeyboardView.OnKeyb
 
     @Override
     public void onKey(int i, int[] ints) {
+        Log.e("IME","OnKey");
+        InputConnection ic =   getCurrentInputConnection();
+        //playClick(i);
 
-        InputConnection ic = getCurrentInputConnection();
-        playClick(i);
-        switch(i){
-            case Keyboard.KEYCODE_DELETE :
-                ic.deleteSurroundingText(1, 0);
-                break;
-            case Keyboard.KEYCODE_SHIFT:
-                caps = !caps;
-                keyboard.setShifted(caps);
-                kv.invalidateAllKeys();
-                break;
-            case Keyboard.KEYCODE_DONE:
-                ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
-                break;
-            default:
-                char code = (char)i;
-                if(Character.isLetter(code) && caps){
-                    code = Character.toUpperCase(code);
-                }
-                ic.commitText(String.valueOf(code),1);
+        if(ic != null){
+            switch(i){
+                case Keyboard.KEYCODE_DELETE :
+                    ic.deleteSurroundingText(1, 0);
+                    break;
+                case Keyboard.KEYCODE_SHIFT:
+                    caps = !caps;
+                    keyboard.setShifted(caps);
+                    kv.invalidateAllKeys();
+                    break;
+                case Keyboard.KEYCODE_DONE:
+                    ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
+                    break;
+                default:
+                    char code = (char)i;
+                    if(Character.isLetter(code) && caps){
+                        code = Character.toUpperCase(code);
+                        Log.d("Bluetooth", "Done 1");
+                    }
+                    ic.commitText(String.valueOf(code),1);
+                    Log.d("Bluetooth", "Done 2");
+            }
         }
 
     }
 
     @Override
     public void onText(CharSequence charSequence) {
-
+        Log.e("IME","OnText");
+        //InputConnection ic = getCurrentInputConnection();
+        //ic.commitText(String.valueOf(65),1);
     }
 
     @Override
@@ -90,6 +105,11 @@ public class SimpleIME extends InputMethodService implements KeyboardView.OnKeyb
         kv.setOnKeyboardActionListener(this);
         return kv;
     }
+    public void printLine(String message){
+        Log.e("IME","It can runnnnnnn");
+        onKey(65,null);
+    }
+
 
     private void playClick(int keyCode){
         AudioManager am = (AudioManager)getSystemService(AUDIO_SERVICE);
@@ -107,5 +127,6 @@ public class SimpleIME extends InputMethodService implements KeyboardView.OnKeyb
             default: am.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD);
         }
     }
+
 
 }
